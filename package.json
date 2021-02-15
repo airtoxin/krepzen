@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@prisma/client": "2.16.1",
+    "fp-ts": "^2.9.5",
+    "io-ts": "^2.2.14",
     "next": "10.0.6",
     "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react-dom": "17.0.1",
+    "swr": "^0.4.2"
   },
   "devDependencies": {
     "@types/node": "^14.14.28",
