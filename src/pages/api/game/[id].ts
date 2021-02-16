@@ -1,20 +1,34 @@
 import { NextApiHandler } from "next";
 import { prisma } from "../../../prisma";
+import { range, select, unwrap } from "../../../utils";
+import { string, type } from "io-ts";
+import { v4 } from "uuid";
 
-const individualGameHandler: NextApiHandler = async (req, res) => {
-  if (req.method === "GET") {
-    console.log("@req.query", req.query);
-    if (typeof req.query.id !== "string") return res.status(400).end();
-    if (typeof req.query.token !== "string") return res.status(400).end();
+const colors = ["red", "blue", "purple", "green"] as const;
 
-    const krepzen = await prisma.krepzen.findFirst({
-      where: { id: req.query.id, token: req.query.token },
+const gameDetailHandler: NextApiHandler = async (req, res) => {
+  if (req.method === "POST") {
+    const { id } = unwrap(type({ id: string }))(req.query);
+    const { token } = unwrap(type({ token: string }))(req.body);
+    const newToken = v4();
+    await prisma.krepzen.updateMany({
+      where: {
+        id,
+        token,
+      },
+      data: {
+        token: newToken,
+      },
     });
-    if (krepzen == null) return res.status(400).end();
-    console.log("@krepzen", krepzen);
 
-    res.send(krepzen);
+    const tileSet = select(
+      range(3).flatMap((row) =>
+        range(3).map((col) => ({ row, col, color: select(colors, 1)[0] }))
+      ),
+      2
+    );
+    res.send({ token: newToken, tileSet });
   }
 };
 
-export default individualGameHandler;
+export default gameDetailHandler;

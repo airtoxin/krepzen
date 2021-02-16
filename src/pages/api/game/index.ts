@@ -1,17 +1,11 @@
 import { NextApiHandler } from "next";
 import { prisma } from "../../../prisma";
 import { Int } from "io-ts";
-import { getOrElseW } from "fp-ts/Either";
-import { pipe } from "fp-ts/function";
+import { unwrap } from "../../../utils";
 
 const gameHandler: NextApiHandler = async (req, res) => {
   if (req.method === "PUT") {
-    const size = pipe(
-      Int.decode(req.body.size),
-      getOrElseW(() => {
-        throw new Error("non integer");
-      })
-    );
+    const size = unwrap(Int)(req.body.size);
 
     const krepzen = await prisma.krepzen.create({
       data: {
